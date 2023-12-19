@@ -8,9 +8,15 @@ def get_battery_status():
     percent = battery.percent
     return plugged, percent
 
-def notify_unplug_reminder():
-    reminder_title = "Unplug Charger Reminder"
-    reminder_message = "Your battery is fully charged. Please unplug your charger to extend battery life."
+msg100 = "Your battery is fully charged. Please unplug your charger to extend battery life."
+msg40 = "Your battery is at charge 40 or below. Please plug your charger to increase performance."
+title100 = "Unplug Charger Reminder"
+title40 = "Plug Charger Reminder"
+
+
+def notify_unplug_reminder(msg, title):
+    reminder_title = title
+    reminder_message = msg
     reminder_timeout = 5  # seconds
 
     notification.notify(
@@ -20,15 +26,18 @@ def notify_unplug_reminder():
     )
 
 def main():
-    reminder_interval = 10  # seconds
+    reminder_interval = 30  # seconds
 
     while True:
         plugged, percent = get_battery_status()
 
-        if plugged and percent >= 99:
-            notify_unplug_reminder()
+        if not plugged and percent <=40:
+            notify_unplug_reminder(msg40,title40)
 
-        # Check battery status every 10 seconds
+        if plugged and percent >= 99:
+            notify_unplug_reminder(msg100,title100)
+
+        # Check battery status every 30 seconds
         time.sleep(reminder_interval)
 
 if __name__ == "__main__":
