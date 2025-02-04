@@ -1,44 +1,64 @@
-import psutil
+from psutil import sensors_battery
 from plyer import notification
-import time
-
-def get_battery_status():
-    battery = psutil.sensors_battery()
-    plugged = battery.power_plugged
-    percent = battery.percent
-    return plugged, percent
-
-msg100 = "Your battery is fully charged. Please unplug your charger to extend battery life."
-msg40 = "Your battery is at charge 40 or below. Please plug your charger to increase performance."
-title100 = "Unplug Charger Reminder"
-title40 = "Plug Charger Reminder"
-
-
-def notify_unplug_reminder(msg, title):
-    reminder_title = title
-    reminder_message = msg
-    reminder_timeout = 5  # seconds
-
+from time import sleep
+from os import path
+def gbs():
+    b = sensors_battery()
+    pl = b.power_plugged
+    p = b.percent
+    return pl, p
+m4 = "Your battery is fully charged. Please unplug your charger to extend battery life."
+m3 = "Charge is at 70 or less. Plug for consistent performance!"
+m2 = "Your battery is at charge 40 or below. Please plug your charger to increase performance."
+m = "Your battery is at charge 25 or below. Please plug your charger immediately!"
+t4 = "Unplug Charger Reminder!"
+t3 = "Plug Charger Reminder!"
+t2 = "Plug Charger Reminder!"
+t = "Plug Charger Immediately"
+base= path.dirname(path.abspath(__file__))
+i4 = path.join(base, 'icons', 'i4.ico')
+i3 = path.join(base, 'icons', 'i3.ico')
+i2 = path.join(base, 'icons', 'i2.ico')
+i = path.join(base, 'icons', 'i.ico')
+def n4(ms, ti):
     notification.notify(
-        title=reminder_title,
-        message=reminder_message,
-        timeout=reminder_timeout
+        title=ti,
+        message=ms,
+        timeout=10,
+        app_icon=i4
     )
-
+def n3(ms, ti):
+    notification.notify(
+        title=ti,
+        message=ms,
+        timeout=10,
+        app_icon=i3
+    )
+def n2(ms, ti):
+    notification.notify(
+        title=ti,
+        message=ms,
+        timeout=10,
+        app_icon=i2
+    )
+def n(ms, ti):
+    notification.notify(
+        title=ti,
+        message=ms,
+        timeout=10,
+        app_icon=i
+    )
 def main():
-    reminder_interval = 30  # seconds
-
     while True:
-        plugged, percent = get_battery_status()
-
-        if not plugged and percent <=40:
-            notify_unplug_reminder(msg40,title40)
-
-        if plugged and percent >= 99:
-            notify_unplug_reminder(msg100,title100)
-
-        # Check battery status every 30 seconds
-        time.sleep(reminder_interval)
-
+        pl, p = gbs()
+        if not pl and p <=25:
+            n(m,t)
+        if not pl and p <=40:
+            n2(m2,t2)
+        if not pl and p <= 70:
+            n3(m3,t3)
+        if pl and p >= 99:
+            n4(m4,t4)
+        sleep(40)
 if __name__ == "__main__":
     main()
